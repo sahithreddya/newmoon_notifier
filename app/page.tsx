@@ -3,45 +3,11 @@
 import { useEffect, useState } from "react";
 import { autocomplete, getPlaceDetails } from "./lib/google";
 import { useDebouncedCallback } from 'use-debounce';
-import AstroData from "./lib/AstroData";
 import DarkSkyVisualizer from "./lib/DarkSkyViz";
-import TimeOfInterest from "astronomy-bundle/time/TimeOfInterest";
+import { getAstroData } from "./lib/data";
 
 
-// export async function getMoonData(lat, long) {
-//   let data = await fetch(`https://moon-phase.p.rapidapi.com/advanced?lat=${Number(lat)}&lon=${Number(long)}`, {
-//     "method": "GET",
-//     "headers": {
-//       "x-rapidapi-host": "moon-phase.p.rapidapi.com",
-//       "x-rapidapi-key": ""
-//     }
-//   })
-//   if (!data.ok) {
-//     throw new Error(`HTTP error ${response.status}`);
-//   }
-//   let moondata = await data.json()
-//   // console.log("moondata is ", moondata);
-
-//   const newmoonDate = new Date(moondata.moon_phases?.new_moon?.next?.timestamp * 1000)
-//   return [newmoonDate.toDateString() + " " + newmoonDate.toTimeString()];
-//   // return "Thu Oct 31 2024"
-// }
-
-export async function getAstroData(lat: number, lon: number, date: Date) { //astroObj: astroData) {
-  const astroObj: AstroData = new AstroData(lat, lon, date);
-
-  let [sunrise, sunset, moonrise, moonset, newmoon] = await Promise.all([astroObj.getSunRise(), astroObj.getSunSet(), astroObj.getMoonRise(), astroObj.getMoonSet(), astroObj.getUpcomingNewMoon()]);
-
-  return {
-    sunrise: sunrise?.getDate() || null,
-    sunset: sunset?.getDate() || null,
-    moonrise: moonrise?.getDate() || null,
-    moonset: moonset?.getDate() || null,
-    newmoon: newmoon?.getDate() || null,
-  }
-}
-
-export default function Home() {
+export default function Page() {
 
   const [latitude, setLatitude] = useState(0); // latitude and longitude
   const [longitude, setLongitude] = useState(0);
@@ -54,7 +20,7 @@ export default function Home() {
   const [place, setPlace] = useState(null);
 
   const [astroData, setAstroData] = useState([]);
-  const [isLoading, setIsLoading] = useState(true); //useState(() => {return !(astroData.length > 0);});
+  const [isLoading, setIsLoading] = useState(true);
 
   const getAstroDataRange = async (range) => {
     let data = [];
@@ -68,7 +34,6 @@ export default function Home() {
     await Promise.all(
       promises
     ).then((val) => {
-      // console.log("data is ", val);
       setAstroData(val);
     })
   }
@@ -114,7 +79,6 @@ export default function Home() {
   }, [place]);
 
   useEffect(() => {
-    // console.log("astroData is ", astroData)
     if (astroData.length > 0) {
       console.log("astroData populated", astroData);
       setNewmoonDate(astroData[0]?.newmoon?.toDateString() + " " + astroData[0]?.newmoon?.toTimeString());
