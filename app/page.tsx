@@ -5,6 +5,11 @@ import { autocomplete, getPlaceDetails } from "./lib/google";
 import { useDebouncedCallback } from 'use-debounce';
 import DarkSkyVisualizer from "./lib/DarkSkyViz";
 import { getAstroData } from "./lib/data";
+import { Button } from "@/app/components/ui/button"
+import { Input } from "@/app/components/ui/input"
+import { Separator } from "@/app/components/ui/separator";
+import { ScrollArea, ScrollBar } from "@/app/components/ui/scroll-area";
+
 
 
 export default function Page() {
@@ -31,11 +36,16 @@ export default function Page() {
           .then((val) => val)
       );
     }
-    await Promise.all(
-      promises
-    ).then((val) => {
-      setAstroData(val);
-    })
+    try {
+      await Promise.all(
+        promises
+      ).then((val) => {
+        setAstroData(val);
+      })
+    }
+    catch (error) {
+      console.error("error getting astro data range: ", error);
+    }
   }
 
   const debouncedFetchPredictions = useDebouncedCallback(
@@ -88,28 +98,29 @@ export default function Page() {
 
 
   return (
-    <div className="grid grid-rows-[10px_1fr_10px] items-start gap-0 h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)]">
+    <div className="grid grid-rows-[10px_1fr_10px] items-start gap-0 h-screen p-8 pb-20 sm:p-20 font-[family-name:var(--font-geist-sans)] dark">
       <div className="h-full"/>
-      <main className="flex flex-row gap-16 row-start-2 items-start justify-between h-full overflow-y-hidden p-2">
-        <div className="flex flex-col gap-8 mt-16">
+      <main className="grid grid-cols-[1fr_auto_2fr] gap-16 row-start-2 items-start justify-between h-full overflow-y-hidden p-2">
+        <div className="flex flex-col gap-8">
           <h2 className="text-3xl sm:text-4xl font-bold w-3/5">When is the next New Moon?</h2>
           <div className="flex flex-row gap-4">
-            <input
+            <Input
               type="text"
-              className="bg-transparent border border-solid border-[#ccc] rounded p-2 w-80"
+              className=""
               placeholder="Start typing a location..."
               onFocus={() => setPlaceTextFocused(true)}
               onBlur={() => setPlaceTextFocused(false)}
               value={placetext || ""}
               onChange={(e) => OnPlaceTextChange(e.target.value)}
             />
-            <button
-              className="w-40 rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5"
+            <Button
+              className=""
               onClick={() => getAstroDataRange(8)}
               rel="noopener noreferrer"
+              variant="default"
             >
               Check
-            </button>
+            </Button>
           </div>
           <div className="flex flex-col">
             {
@@ -122,16 +133,17 @@ export default function Page() {
               ))
             }
           </div>
-          <p className={`${newmoonDate ? "visible" : "hidden"}`}>The next new moon is at <b>{newmoonDate}</b></p>
-        </div>   
-        {(isLoading) ? <br/> : <div className="flex gap-8 items-center flex-col w-full overflow-y-scroll h-full py-8">
+          <p className={`${newmoonDate ? "visible" : "hidden"} text-base`}>The next new moon is at <b>{newmoonDate}</b></p>
+        </div>
+        <Separator orientation="vertical" className="h-full" />
+        {(isLoading) ? <br/> : <ScrollArea type="auto" className="h-full"><div className="flex gap-8 items-start flex-col w-full py-8">
           {            
             astroData.map((data, i) => (
               (i + 1) < astroData.length &&
               DarkSkyVisualizer(astroData[i], astroData[i + 1], i)
             ))
           }
-        </div>}
+        </div><ScrollBar orientation="horizontal" /></ScrollArea>}
       </main>
       <div className="h-full"/>
     </div>
