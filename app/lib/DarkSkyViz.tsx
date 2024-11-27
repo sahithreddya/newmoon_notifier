@@ -20,16 +20,16 @@ type Event = {
 type Window = {
     start: number; // Start time of the window (0-1440)
     end: number; // End time of the window (0-1440)
-    isDark: boolean; // Whether the sky is dark in this window
+    illuminatedSky: 'daylight' | 'moonlit' | 'dark';
 };
 
-const calculateDarkSkyWindows = (t1: DayEvent, t2: DayEvent):[Event[], Window[]] => {
+const calculateDarkSkyWindows = (t1: DayEvent, t2: DayEvent): [Event[], Window[]] => {
 
     const findEventBeforeNoon = (events: DayEvent): string => {
         const eventsBeforeNoon: [string, Date][] = Object.entries(events)
             .filter(([key, date]) => (date?.getHours() < 12) && (key !== "newmoon"))
             .sort((a, b) => a[1].getHours() - b[1].getHours());
-        
+
         console.log("eventsBeforeNoon is ", eventsBeforeNoon);
         return eventsBeforeNoon.at(-1)[0]; //Returning event type as string
     }
@@ -49,7 +49,7 @@ const calculateDarkSkyWindows = (t1: DayEvent, t2: DayEvent):[Event[], Window[]]
     const t2sunrise = (t2.sunrise.getHours() * 60 + t2.sunrise.getMinutes()) + 720;
 
     const t1moonrise = t1?.moonrise && (t1.moonrise.getHours() * 60 + t1.moonrise.getMinutes()) - 720;
-    const t1moonset = t1?.moonset &&(t1.moonset.getHours() * 60 + t1.moonset.getMinutes()) - 720;
+    const t1moonset = t1?.moonset && (t1.moonset.getHours() * 60 + t1.moonset.getMinutes()) - 720;
 
     const t2moonrise = t2?.moonrise && (t2.moonrise.getHours() * 60 + t2.moonrise.getMinutes()) + 720;
     const t2moonset = t2?.moonset && (t2.moonset.getHours() * 60 + t2.moonset.getMinutes()) + 720;
@@ -64,7 +64,7 @@ const calculateDarkSkyWindows = (t1: DayEvent, t2: DayEvent):[Event[], Window[]]
 
     //Calculating event before noon for t1    
     const eventBeforeNoon: string = findEventBeforeNoon(t1);
-    
+
 
     // Assigning times
     events = [...events].map((e) => {
@@ -86,7 +86,7 @@ const calculateDarkSkyWindows = (t1: DayEvent, t2: DayEvent):[Event[], Window[]]
     })
 
     // Assigning order
-    events = [...events].sort((a, b) => a.time - b.time).map((e, i) => { return {...e, order: i+1}});
+    events = [...events].sort((a, b) => a.time - b.time).map((e, i) => { return { ...e, order: i + 1 } });
 
     // console.log("events are ", events);
 
@@ -105,24 +105,69 @@ const calculateDarkSkyWindows = (t1: DayEvent, t2: DayEvent):[Event[], Window[]]
             { type: "endOfDay", time: 1440, order: (filteredEvents.length + 1) },
         ];
 
-        // Determine "isDark" state based on whether the moon or sun is in the sky
-        const isSkyDark = (startEvent: Event, endEvent: Event): boolean => {
-            
-            // Conditions for darkness:
-            // - Sun is below the horizon (after sunset and before sunrise)
-            // - Moon is below the horizon (after moonset and before moonrise)
-            
-            // Checking if previous window ended illuminated or dark
-            if ((startEvent.type === "startOfDay") &&
-                (eventBeforeNoon === "sunrise" || eventBeforeNoon === "moonrise")) {
-                return false;
+        const sunriseOrder = eventsWithDayBounds.findIndex((e) => e.type === "sunrise");
+        const sunsetOrder = eventsWithDayBounds.findIndex((e) => e.type === "sunset");
+        const moonriseOrder = eventsWithDayBounds.findIndex((e) => e.type === "moonrise");
+        const moonsetOrder = eventsWithDayBounds.findIndex((e) => e.type === "moonset");
+
+        // Determine the state of illuminated of sky based on whether the moon or sun is in the sky
+        const calcIlluminatedSky = (startEvent: Event, endEvent: Event): ('daylight' | 'moonlit' | 'dark') => {
+
+            if (sunsetOrder < sunriseOrder) {
+                if (startEvent.type === "startOfDay") {
+                    return 'daylight';
+                }
+                if (startEvent.type === "sunrise" || endEvent.type === "sunset") {
+                    return 'daylight';
+                }
+                if (startEvent.type === "moonrise") {
+                    if (moonriseOrder > sunsetOrder && moonriseOrder < sunriseOrder) {
+                        return 'moonlit';
+                    }
+                    else {
+                        return 'daylight';
+                    }
+                }
+                if (endEvent.type === "moonset") {
+                    if (moonsetOrder > sunsetOrder && moonsetOrder < sunriseOrder) {
+                        return 'moonlit';
+                    }
+                    else {
+                        return 'daylight';
+                    }
+                }
             }
-            const sunInSky = startEvent.type === "sunrise" || endEvent.type === "sunset";
-            const moonInSky = startEvent.type === "moonrise" || endEvent.type === "moonset";
-            return !(sunInSky || moonInSky); // Dark if neither sun nor moon is in the sky
+            else if (sunriseOrder < sunsetOrder) {
+                if ((startEvent.type === "startOfDay") && (eventBeforeNoon === "sunrise")) { // Checking if previous window ended sun/moon illuminated
+                    return 'daylight';
+                }
+                if ((startEvent.type === "startOfDay") && (eventBeforeNoon === "moonrise")) {
+                    return 'moonlit';
+                }
+                if (startEvent.type === "sunrise" || endEvent.type === "sunset") {
+                    return 'daylight';
+                }
+                if (startEvent.type === "moonrise") {
+                    if (moonriseOrder > sunsetOrder || moonriseOrder < sunriseOrder) {
+                        return 'moonlit';
+                    }
+                    else {
+                        return 'daylight';
+                    }
+                }
+                if (endEvent.type === "moonset") {
+                    if (moonsetOrder > sunsetOrder || moonsetOrder < sunriseOrder) {
+                        return 'moonlit';
+                    }
+                    else {
+                        return 'daylight';
+                    }
+                }
+            }
+            return 'dark' // Sky is dark when none of the conditions satisfy
         };
 
-        // Create 4 windows based on the sorted events
+        // Create windows based on the sorted events
         for (let i = 0; i < eventsWithDayBounds.length - 1; i++) {
             const currentEvent = eventsWithDayBounds[i];
             const nextEvent = eventsWithDayBounds[i + 1];
@@ -133,12 +178,12 @@ const calculateDarkSkyWindows = (t1: DayEvent, t2: DayEvent):[Event[], Window[]]
             windows.push({
                 start: start % 1440, // Normalize to 0-1440 scale
                 end: end === 1440 ? 1440 : end % 1440,     // Normalize to 0-1440 scale
-                isDark: isSkyDark(currentEvent, nextEvent),
+                illuminatedSky: calcIlluminatedSky(currentEvent, nextEvent),
             });
         }
 
         console.log("events with day bounds are ", eventsWithDayBounds);
-        console.log ("windows are ", windows);
+        console.log("windows are ", windows);
         return windows;
     }
 
@@ -153,9 +198,9 @@ export default function DarkSkyVisualizer(d1, d2, key) {
         switch (type) {
             case "sunrise":
                 return <WiSunrise className="w-6 h-6 text-yellow-400" />;
-            case "sunset": 
+            case "sunset":
                 return <WiSunset className="w-6 h-6 text-orange-400" />;
-            case "moonrise":   
+            case "moonrise":
                 return <WiMoonrise className="w-6 h-6 text-blue-400" />;
             case "moonset":
                 return <WiMoonset className="w-6 h-6 text-gray-400" />;
@@ -178,9 +223,20 @@ export default function DarkSkyVisualizer(d1, d2, key) {
         )
     }
 
+    const getWindowColor = (window: Window) => {
+        switch (window.illuminatedSky) {
+            case "daylight":
+                return "bg-amber-300 opacity-60";
+            case "moonlit":
+                return "bg-cyan-300 opacity-60";
+            case "dark":
+                return "bg-gradient-to-r from-blue-950 from-15% via-indigo-950 to-blue-950 to-85%";
+        }
+    }
+
     return (
-        <div className="max-w-3xl mx-auto p-2 w-full flex flex-row gap-4" key={key}>
-            <h4 className="text-base font-semibold text-end">{d1?.sunset.toLocaleString("default", {month: "short", day: "numeric"})}<br />12:00 PM</h4>
+        <div className="max-w-3xl p-2 w-full flex flex-row gap-4" key={key}>
+            <h4 className="text-base font-semibold text-end">{d1?.sunset.toLocaleString("default", { month: "short", day: "numeric" })}<br />12:00 PM</h4>
             <div className="relative h-12 bg-black overflow-visible flex-1">
                 {darkSkyWindows?.map((window, index) => {
                     const startPercent = (window.start / 1440) * 100
@@ -189,7 +245,7 @@ export default function DarkSkyVisualizer(d1, d2, key) {
                     return (
                         <div
                             key={index}
-                            className= {`absolute h-full ${window.isDark ? 'bg-gradient-to-r from-blue-950 from-15% via-indigo-950 to-blue-950 to-85%' : 'bg-amber-300 opacity-60'} `}
+                            className={`absolute h-full ${getWindowColor(window)} `}
                             style={{
                                 left: `${startPercent}%`,
                                 width: `${widthPercent}%`,
@@ -212,7 +268,7 @@ export default function DarkSkyVisualizer(d1, d2, key) {
                     <span>00:00</span>
                 </div> */}
             </div>
-            <h4 className="text-base font-semibold">{d2?.sunrise.toLocaleString("default", {month: "short", day: "numeric"})}<br />12:00 PM</h4>
+            <h4 className="text-base font-semibold">{d2?.sunrise.toLocaleString("default", { month: "short", day: "numeric" })}<br />12:00 PM</h4>
             {/* <div className="mt-4 text-sm">
                 <p>Dark sky windows (sun and illuminated moon below horizon):</p>
                 <ul>
