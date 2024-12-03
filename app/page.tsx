@@ -44,16 +44,17 @@ export default function Page() {
       return;
     }
     setPlaceText(place?.description)
-    getLatLong(place?.place_id)
+    getLatLong(place?.place_id) // Getting lat and long values using place id
+    getMoonData(latitude, longitude).then((timestamp) => { // getting new moon info using moon-phase api
+      const newmoonDate = new Date(timestamp)
+      setNewmoonDate(newmoonDate.toDateString() + " " + newmoonDate.toTimeString()) 
+    })
     setPlaceResultsVisible(false)
   }, [place]);
 
   useEffect(() => {
     if (astroData.length > 0) {
-      // setNewmoonDate(astroData[0]?.newmoon?.toDateString() + " " + astroData[0]?.newmoon?.toTimeString()); // using astronomy-bundle library
-      getMoonData(latitude, longitude).then((val) => {
-        setNewmoonDate(val) // using moon-phase api
-      })
+      console.log("astroData populated", astroData);
       setIsLoading(false);
     }
   }, [astroData]);
@@ -156,7 +157,7 @@ export default function Page() {
               ))
             }
           </div>
-          <p className={`${newmoonDate ? "visible" : "hidden"} text-base`}>The next new moon is at <b>{newmoonDate}</b></p>
+          {!isLoading && <p className={`${newmoonDate ? "visible" : "hidden"} text-base`}>The next new moon is at <b>{newmoonDate}</b></p>}
         </div>
         <Separator orientation="vertical" className="h-full" />
         {(isLoading) ? <br /> : <div className=" flex flex-col h-full overflow-y-hidden">
