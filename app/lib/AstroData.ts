@@ -67,10 +67,8 @@ export default class AstroData {
 
         if (toiRise) {
             if (riseDate < currentDate) {
-                console.log(`adjusting ${this.today.getDate()} moonrise: local timezone is behind ${toiRise.getDate().getDate()}`);
                 return await this.tmrwmoon.getRise(this.location);
             } else if (riseDate > currentDate) {
-                console.log(`adjusting ${this.today.getDate()} moonrise: local timezone is ahead ${toiRise.getDate().getDate()}`);
                 return await this.yestmoon.getRise(this.location);
             } else {
                 return toiRise;
@@ -93,10 +91,8 @@ export default class AstroData {
 
       if (toiSet) {
         if (setDate < currentDate) {
-          console.log(`adjusting ${this.today.getDate()} moonset: local timezone is behind ${toiSet.getDate().getDate()}`);
           return await this.tmrwmoon.getSet(this.location);
         } else if (setDate > currentDate) {
-          console.log(`adjusting ${this.today.getDate()} moonset: local timezone is ahead ${toiSet.getDate().getDate()}`);
           return await this.yestmoon.getSet(this.location);
         } else {
           return toiSet;
@@ -123,10 +119,8 @@ export default class AstroData {
 
       if (toiRise) {
         if (riseDate < currentDate) {
-          console.log(`adjusting ${this.today.toDateString() + this.today.toTimeString()} sunrise: local timezone is behind ${toiRise.getDate().toDateString() + this.today.toTimeString()}`);
           return await this.tmrwsun.getRise(this.location);
         } else if (riseDate > currentDate) {
-          console.log(`adjusting ${this.today.getDate()} sunrise: local timezone is ahead ${toiRise.getDate().getDate()}`);
           return await this.yestsun.getRise(this.location);
         } else {
           return toiRise;
@@ -148,10 +142,8 @@ export default class AstroData {
 
       if (toiSet) {
         if (setDate < currentDate) {
-          console.log(`adjusting ${this.today.getDate()} sunset: local timezone is behind ${toiSet.getDate().getDate()}`);
           return await this.tmrwsun.getSet(this.location);
         } else if (setDate > currentDate) {
-          console.log(`adjusting ${this.today.getDate()} sunset: local timezone is ahead ${toiSet.getDate().getDate()}`);
           return await this.yestsun.getSet(this.location);
         } else {
           return toiSet;
