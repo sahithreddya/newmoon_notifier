@@ -1,3 +1,5 @@
+"use server";
+
 import AstroData from "./AstroData";
 
 

@@ -125,7 +125,7 @@ export default function Page() {
       <div className="h-full"/>
       <main className="grid grid-cols-[1fr_auto_2fr] gap-16 row-start-2 items-start justify-between h-full overflow-y-hidden p-2">
         <div className="flex flex-col gap-8">
-          <h2 className="text-3xl sm:text-4xl font-bold w-3/5">When is the next New Moon?</h2>
+          <h2 className="text-3xl sm:text-4xl font-bold">When is the next <br/> New Moon?</h2>
           <div className="flex flex-row gap-4">
             <Input
               type="text"
