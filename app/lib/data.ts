@@ -1,3 +1,5 @@
+"use server";
+
 import AstroData from "./AstroData";
 
 
@@ -6,7 +8,7 @@ export async function getMoonData(lat, long) {
       "method": "GET",
       "headers": {
         "x-rapidapi-host": "moon-phase.p.rapidapi.com",
-        "x-rapidapi-key": process.env.MOON_API_KEY
+        "x-rapidapi-key": process.env.MOON_API_KEY!
       }
     })
     try {

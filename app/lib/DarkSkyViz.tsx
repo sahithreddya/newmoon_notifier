@@ -1,198 +1,12 @@
 import React from 'react'
-import { IconType } from 'react-icons';
-// import { Sunrise, Sunset, MoonIcon, MoonIcon as MoonOff } from 'lucide-react'
 import { WiSunrise, WiSunset, WiMoonrise, WiMoonset } from "react-icons/wi";
-
-type DayEvent = {
-    newmoon: Date,
-    sunrise: Date,
-    sunset: Date,
-    moonrise: Date,
-    moonset: Date,
-}
-
-type Event = {
-    type: "sunrise" | "sunset" | "moonrise" | "moonset" | "startOfDay" | "endOfDay";
-    time: number; // Time in minutes (0-1440)
-    order: number; // Order of occurrence (1-4)
-};
-
-type Window = {
-    start: number; // Start time of the window (0-1440)
-    end: number; // End time of the window (0-1440)
-    illuminatedSky: 'daylight' | 'moonlit' | 'dark';
-};
-
-const calculateDarkSkyWindows = (t1: DayEvent, t2: DayEvent): [Event[], Window[]] => {
-
-    const findEventBeforeNoon = (events: DayEvent): string => {
-        const eventsBeforeNoon: [string, Date][] = Object.entries(events)
-            .filter(([key, date]) => (date?.getHours() < 12) && (key !== "newmoon"))
-            .sort((a, b) => a[1].getHours() - b[1].getHours());
-
-        console.log("eventsBeforeNoon is ", eventsBeforeNoon);
-        return eventsBeforeNoon.at(-1)[0]; //Returning event type as string
-    }
-
-    let events: Event[] = [
-        { type: "sunrise", time: 0, order: 0 },
-        { type: "sunset", time: 0, order: 0 },
-        { type: "moonrise", time: 0, order: 0 },
-        { type: "moonset", time: 0, order: 0 },
-    ];
-
-    // Coverting event times to total minutes, and adjusting it for the halves of each day
-    const t1sunset = (t1.sunset.getHours() * 60 + t1.sunset.getMinutes()) - 720;
-    const t1sunrise = (t1.sunrise.getHours() * 60 + t1.sunrise.getMinutes()) - 720;
-
-    const t2sunset = (t2.sunset.getHours() * 60 + t2.sunset.getMinutes()) + 720;
-    const t2sunrise = (t2.sunrise.getHours() * 60 + t2.sunrise.getMinutes()) + 720;
-
-    const t1moonrise = t1?.moonrise && (t1.moonrise.getHours() * 60 + t1.moonrise.getMinutes()) - 720;
-    const t1moonset = t1?.moonset && (t1.moonset.getHours() * 60 + t1.moonset.getMinutes()) - 720;
-
-    const t2moonrise = t2?.moonrise && (t2.moonrise.getHours() * 60 + t2.moonrise.getMinutes()) + 720;
-    const t2moonset = t2?.moonset && (t2.moonset.getHours() * 60 + t2.moonset.getMinutes()) + 720;
-
-    // Calculating which half the sunrise and sunset belong to
-    const sunrise = t1sunrise < 0 ? t2sunrise : t1sunrise;
-    const sunset = t1sunset < 0 ? t2sunset : t1sunset;
-
-    // Calculating which half the moonrise and moonset belong to
-    const moonrise = t1moonrise && t1moonrise < 0 ? t2moonrise : (t1moonrise ?? t2moonrise);
-    const moonset = t1moonset && t1moonset < 0 ? t2moonset : (t1moonset ?? t2moonset);
-
-    //Calculating event before noon for t1    
-    const eventBeforeNoon: string = findEventBeforeNoon(t1);
-
-
-    // Assigning times
-    events = [...events].map((e) => {
-        let update: Event;
-
-        if (e.type === "sunrise") {
-            update = { ...e, time: sunrise };
-        }
-        else if (e.type === "sunset") {
-            update = { ...e, time: sunset };
-        }
-        else if (e.type === "moonrise") {
-            update = { ...e, time: moonrise };
-        }
-        else if (e.type === "moonset") {
-            update = { ...e, time: moonset };
-        }
-        return update;
-    })
-
-    // Assigning order
-    events = [...events].sort((a, b) => a.time - b.time).map((e, i) => { return { ...e, order: i + 1 } });
-
-    // console.log("events are ", events);
-
-    // Calculating windows
-    const calculateWindows = (events: Event[], eventBeforeNoon: string): Window[] => {
-
-        // Filtering events that are out of 1440 minute bounds
-        const filteredEvents = [...events].filter((e) => (e?.time <= 1440));
-
-        const windows: Window[] = [];
-
-        // Add a "0" event to start the day and a "1440" event to end the day
-        const eventsWithDayBounds: Event[] = [
-            { type: "startOfDay", time: 0, order: 0 },
-            ...filteredEvents,
-            { type: "endOfDay", time: 1440, order: (filteredEvents.length + 1) },
-        ];
-
-        const sunriseOrder = eventsWithDayBounds.findIndex((e) => e.type === "sunrise");
-        const sunsetOrder = eventsWithDayBounds.findIndex((e) => e.type === "sunset");
-        const moonriseOrder = eventsWithDayBounds.findIndex((e) => e.type === "moonrise");
-        const moonsetOrder = eventsWithDayBounds.findIndex((e) => e.type === "moonset");
-
-        // Determine the state of illuminated of sky based on whether the moon or sun is in the sky
-        const calcIlluminatedSky = (startEvent: Event, endEvent: Event): ('daylight' | 'moonlit' | 'dark') => {
-
-            if (sunsetOrder < sunriseOrder) {
-                if (startEvent.type === "startOfDay") {
-                    return 'daylight';
-                }
-                if (startEvent.type === "sunrise" || endEvent.type === "sunset") {
-                    return 'daylight';
-                }
-                if (startEvent.type === "moonrise") {
-                    if (moonriseOrder > sunsetOrder && moonriseOrder < sunriseOrder) {
-                        return 'moonlit';
-                    }
-                    else {
-                        return 'daylight';
-                    }
-                }
-                if (endEvent.type === "moonset") {
-                    if (moonsetOrder > sunsetOrder && moonsetOrder < sunriseOrder) {
-                        return 'moonlit';
-                    }
-                    else {
-                        return 'daylight';
-                    }
-                }
-            }
-            else if (sunriseOrder < sunsetOrder) {
-                if ((startEvent.type === "startOfDay") && (eventBeforeNoon === "sunrise")) { // Checking if previous window ended sun/moon illuminated
-                    return 'daylight';
-                }
-                if ((startEvent.type === "startOfDay") && (eventBeforeNoon === "moonrise")) {
-                    return 'moonlit';
-                }
-                if (startEvent.type === "sunrise" || endEvent.type === "sunset") {
-                    return 'daylight';
-                }
-                if (startEvent.type === "moonrise") {
-                    if (moonriseOrder > sunsetOrder || moonriseOrder < sunriseOrder) {
-                        return 'moonlit';
-                    }
-                    else {
-                        return 'daylight';
-                    }
-                }
-                if (endEvent.type === "moonset") {
-                    if (moonsetOrder > sunsetOrder || moonsetOrder < sunriseOrder) {
-                        return 'moonlit';
-                    }
-                    else {
-                        return 'daylight';
-                    }
-                }
-            }
-            return 'dark' // Sky is dark when none of the conditions satisfy
-        };
-
-        // Create windows based on the sorted events
-        for (let i = 0; i < eventsWithDayBounds.length - 1; i++) {
-            const currentEvent = eventsWithDayBounds[i];
-            const nextEvent = eventsWithDayBounds[i + 1];
-
-            const start = currentEvent.time;
-            const end = nextEvent.time;
-
-            windows.push({
-                start: start % 1440, // Normalize to 0-1440 scale
-                end: end === 1440 ? 1440 : end % 1440,     // Normalize to 0-1440 scale
-                illuminatedSky: calcIlluminatedSky(currentEvent, nextEvent),
-            });
-        }
-
-        console.log("events with day bounds are ", eventsWithDayBounds);
-        console.log("windows are ", windows);
-        return windows;
-    }
-
-    return [events as Event[], calculateWindows(events, eventBeforeNoon) as Window[]];
-}
+import { DayEvent, DayWindow } from './definitions';
+import { calculateEvents, calculateWindows } from './utils';
 
 export default function DarkSkyVisualizer(d1, d2, key) {
 
-    const [events, darkSkyWindows]: [Event[], Window[]] = calculateDarkSkyWindows(d1, d2);
+    const [events, eventBeforeNoon]: [DayEvent[], string] = calculateEvents(d1, d2);
+    const darkSkyWindows: DayWindow[] = calculateWindows(events, eventBeforeNoon);
 
     const getEventIcon = (type: string) => {
         switch (type) {
@@ -207,7 +21,7 @@ export default function DarkSkyVisualizer(d1, d2, key) {
         }
     }
 
-    const TimelineEvent = ({ event, position }: { event: Event, position: number }) => {
+    const TimelineEvent = ({ event, position }: { event: DayEvent, position: number }) => {
         let actualTime = event.time > 720 ? event.time - 720 : event.time + 720;
         return (
             <div
@@ -223,11 +37,11 @@ export default function DarkSkyVisualizer(d1, d2, key) {
         )
     }
 
-    const getWindowColor = (window: Window) => {
-        switch (window.illuminatedSky) {
+    const getWindowColor = (window: DayWindow) => {
+        switch (window?.illuminatedSky) {
             case "daylight":
                 return "bg-amber-300 opacity-60";
-            case "moonlit":
+            case "moonlight":
                 return "bg-cyan-300 opacity-60";
             case "dark":
                 return "bg-gradient-to-r from-blue-950 from-15% via-indigo-950 to-blue-950 to-85%";
@@ -255,7 +69,7 @@ export default function DarkSkyVisualizer(d1, d2, key) {
                     )
                 })}
                 <div className="absolute inset-0 opacity-30" />
-                {events?.filter((event) => event.time <= 1440).map((event, index) => (
+                {events?.filter((event) => (event.time < 1440) && (event.time > 0)).map((event, index) => (
                     <TimelineEvent
                         key={index}
                         event={event}
