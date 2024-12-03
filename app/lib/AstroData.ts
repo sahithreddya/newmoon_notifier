@@ -24,8 +24,6 @@ export default class AstroData {
   yestsun: Sun;
 
   constructor(lat: number, lon: number, date: Date) {
-    // console.log("constructing");
-    // console.log("today's date is ", date);
 
     this.location = {
       lat: lat,
