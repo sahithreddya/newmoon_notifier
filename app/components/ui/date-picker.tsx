@@ -32,16 +32,6 @@ export function DatePickerWithRange({
   const handleSelect = (selectedRange: DateRange | undefined) => {
     if (selectedRange?.from && selectedRange?.to) {
       console.log("date is ", selectedRange);
-      const daysDifference = differenceInDays(selectedRange.to, selectedRange.from);
-      console.log("days difference is ", daysDifference);
-      // if (daysDifference > 7) {
-      //   toast({
-      //     variant: "destructive",
-      //     title: "Invalid Date Range",
-      //     description: "You can't select more than 7 consecutive days.",
-      //   })
-      //   return;
-      // }
     }
     setDate(selectedRange);
   };
