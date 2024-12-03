@@ -13,8 +13,9 @@ export async function getMoonData(lat, long) {
     })
     try {
       let moondata = await data.json()
-      const newmoonDate = new Date(moondata?.moon_phases?.new_moon?.next?.timestamp * 1000)
-      return [newmoonDate.toDateString() + " " + newmoonDate.toTimeString()];
+      console.log("moon data is ", moondata);
+      const newmoonDateTime = moondata?.moon_phases?.new_moon?.next?.timestamp * 1000
+      return newmoonDateTime;
     } catch (error) {
       console.error(error);
     }
