@@ -169,7 +169,7 @@ export default function Page() {
                 {
                   astroData.map((data, i) => (
                     (i + 1) < astroData.length &&
-                    <div className="flex flex-col gap-8 w-full">
+                    <div className="flex flex-col gap-8 w-full" key={i}>
                       {DarkSkyVisualizer(astroData[i], astroData[i + 1], i)}
                       <Separator orientation="horizontal" className="w-full" key={i} />
                     </div>
