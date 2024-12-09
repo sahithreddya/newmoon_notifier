@@ -17,7 +17,6 @@ import { DatePickerWithRange } from "./components/ui/date-picker";
 import { useToast } from "./hooks/use-toast";
 
 
-
 export default function Page() {
 
   const [latitude, setLatitude] = useState<number>(null); // latitude and longitude
@@ -54,7 +53,6 @@ export default function Page() {
 
   useEffect(() => {
     if (astroData.length > 0) {
-      console.log("astroData populated", astroData);
       setIsLoading(false);
     }
   }, [astroData]);
@@ -165,13 +163,16 @@ export default function Page() {
           {
             DatePickerWithRange({ date, setDate })
           }
-          <div className="relative h-6 flex-1 overflow-hidden border rounded-md border-[hsl(var(--border))]">
+          <div className="max-w-screen-lg relative h-6 flex-1 overflow-hidden border rounded-md border-[hsl(var(--border))]">
             <ScrollArea type="auto" className="h-full -z-0">
-              <div className="relative flex gap-8 items-start flex-col w-full px-4 py-8">
+              <div className="relative flex gap-8 items-start flex-col w-full py-8 pl-4 pr-6">
                 {
                   astroData.map((data, i) => (
                     (i + 1) < astroData.length &&
-                    DarkSkyVisualizer(astroData[i], astroData[i + 1], i)
+                    <div className="flex flex-col gap-8 w-full">
+                      {DarkSkyVisualizer(astroData[i], astroData[i + 1], i)}
+                      <Separator orientation="horizontal" className="w-full" key={i} />
+                    </div>
                   ))
                 }
               </div>

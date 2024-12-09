@@ -1,5 +1,9 @@
 import React from 'react'
-import { WiSunrise, WiSunset, WiMoonrise, WiMoonset } from "react-icons/wi";
+import SunriseIcon from "@/public/icons/Sunrise.svg";
+import SunsetIcon from "@/public/icons/Sunset.svg";
+import MoonriseIcon from "@/public/icons/Moonrise.svg";
+import MoonsetIcon from "@/public/icons/Moonset.svg";
+
 import { DayEvent, DayWindow } from './definitions';
 import { calculateEvents, calculateWindows } from './utils';
 
@@ -11,27 +15,38 @@ export default function DarkSkyVisualizer(d1, d2, key) {
     const getEventIcon = (type: string) => {
         switch (type) {
             case "sunrise":
-                return <WiSunrise className="w-6 h-6 text-yellow-400" />;
+                return <SunriseIcon className="w-6 h-6 text-amber-300 opacity-60"/>;
             case "sunset":
-                return <WiSunset className="w-6 h-6 text-orange-400" />;
+                return <SunsetIcon className="w-6 h-6 text-neutral-600"/>;
             case "moonrise":
-                return <WiMoonrise className="w-6 h-6 text-blue-400" />;
+                return <MoonriseIcon className="w-6 h-6 text-cyan-300 opacity-60"/>;
             case "moonset":
-                return <WiMoonset className="w-6 h-6 text-gray-400" />;
+                return <MoonsetIcon className="w-6 h-6 text-neutral-600"/>;
         }
     }
+    
 
     const TimelineEvent = ({ event, position }: { event: DayEvent, position: number }) => {
         let actualTime = event.time > 720 ? event.time - 720 : event.time + 720;
+        const eventIcon = getEventIcon(event.type);
+        let eventPosition;
+        if (event.type === "sunrise" || event.type === "sunset") {
+            eventPosition = "top-[-24px]";
+        }
+        else if (event.type === "moonrise" || event.type === "moonset") {
+            eventPosition = "bot-[-24px]";
+        }
         return (
             <div
-                className="absolute transform -translate-x-1/2 top-[-24px]"
+                className={`absolute transform -translate-x-1/2 
+                    ${(event.type === "sunrise" || event.type === "sunset") ? "top-[-24px]" : "bottom-[-24px]"}`}
                 style={{ left: `${position}%` }}
                 aria-label={`${event.type} at ${event.time}`}
             >
                 <div className="flex flex-col items-center">
-                    {getEventIcon(event.type)}
-                    <span className="text-xs mt-1">{`${Math.floor(actualTime / 60)}:${(actualTime % 60).toString().padStart(2, '0')}`}</span>
+                    {(event.type === "sunrise" || event.type === "sunset") ? getEventIcon(event.type) : <></>}
+                    <span className="text-xs font-normal mt-1">{`${Math.floor(actualTime / 60)}:${(actualTime % 60).toString().padStart(2, '0')}`}</span>
+                    {(event.type === "sunrise" || event.type === "sunset") ? <></> : getEventIcon(event.type)}
                 </div>
             </div>
         )
@@ -49,7 +64,7 @@ export default function DarkSkyVisualizer(d1, d2, key) {
     }
 
     return (
-        <div className="max-w-3xl p-2 w-full flex flex-row gap-4" key={key}>
+        <div className="min-w-2xl p-2 w-full flex flex-row gap-4" key={key}>
             <h4 className="text-base font-semibold text-end">{d1?.sunset.toLocaleString("default", { month: "short", day: "numeric" })}<br />12:00 PM</h4>
             <div className="relative h-12 bg-black overflow-visible flex-1">
                 {darkSkyWindows?.map((window, index) => {

@@ -120,10 +120,6 @@ export const calculateWindows = (
       }
     } else if (sunriseOrder < sunsetOrder) {
       // sunset is after the sunrise on the 12PM - 12PM scale
-      if (startEvent.type === "startOfDay" && eventBeforeNoon === "sunrise") {
-        // Checking if previous window ended sun/moon illuminated
-        return "daylight";
-      }
       if (startEvent.type === "startOfDay" && eventBeforeNoon === "moonrise") {
         return "moonlight";
       }

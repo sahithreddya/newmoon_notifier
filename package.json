@@ -30,6 +30,7 @@
     "use-debounce": "^10.0.4"
   },
   "devDependencies": {
+    "@svgr/webpack": "^8.1.0",
     "@types/node": "22.9.0",
     "@types/react": "18.3.12",
     "eslint": "^8",
