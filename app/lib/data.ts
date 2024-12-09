@@ -8,7 +8,7 @@ export async function getMoonData(lat, long) {
       "method": "GET",
       "headers": {
         "x-rapidapi-host": "moon-phase.p.rapidapi.com",
-        "x-rapidapi-key": process.env.MOON_API_KEY!
+        "x-rapidapi-key": "9239770f85mshc1e595be7ef84f7p19cadcjsnaecd4f3c2c62" //process.env.MOON_API_KEY!
       }
     })
     try {

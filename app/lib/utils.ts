@@ -19,6 +19,7 @@ const findEventBeforeNoon = (events: AstroEvents): string => {
     .filter(([key, date]) => date?.getHours() < 12 && key !== "newmoon")
     .sort((a, b) => a[1].getHours() - b[1].getHours());
 
+  console.log("eventsBeforeNoon is ", eventsBeforeNoon);
   return eventsBeforeNoon.at(-1)[0]; //Returning event type as string
 };
 
@@ -162,5 +163,7 @@ export const calculateWindows = (
     });
   }
 
+  console.log("events with day bounds are ", events);
+  console.log("windows are ", windows);
   return windows;
 };

@@ -9,7 +9,7 @@ export const autocomplete = async (input: string) => {
     const response = await client.placeAutocomplete({
       params: {
         input,
-        key: process.env.GOOGLE_API_KEY!,
+        key: "AIzaSyC2ceqaLLqu0clbypeGs5qGq2XQHkPE2bI",// process.env.GOOGLE_API_KEY!,
       },
     });
 
@@ -27,7 +27,7 @@ export const getPlaceDetails = async (input: string) => {
     const response = await client.placeDetails({
       params: {
         place_id: input,
-        key: process.env.GOOGLE_API_KEY!,
+        key: "AIzaSyC2ceqaLLqu0clbypeGs5qGq2XQHkPE2bI",// process.env.GOOGLE_API_KEY!,
       },
     });
 
