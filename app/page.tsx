@@ -218,16 +218,16 @@ export default function Page() {
                   Help improve this app
                 </Button>
               </DialogTrigger>
-              <DialogContent className="sm:max-w-[30%]">
+              <DialogContent className="max-w-[50%] md:max-w-[30%]">
                 <DialogHeader>
                   <DialogTitle>Submit Feedback</DialogTitle>
-                  <DialogDescription>
+                  <DialogDescription className="text-base">
                     <i>Darksites.co</i> is still in development and we would love to get your feedback.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="">
-                    <Textarea className="h-[10rem]" placeholder="Type your message here." value={feedback} onChange={(e) => setFeedback(e.target.value)}/>
+                    <Textarea className="h-[10rem] text-base" placeholder="Type your message here." value={feedback} onChange={(e) => setFeedback(e.target.value)}/>
                   </div>
                   <div className="flex flex-col gap-2 items-start">
                     <p className="text-left text-base font-semibold">
