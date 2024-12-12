@@ -72,7 +72,7 @@ export function DatePickerWithRange({
             onSelect={handleSelect}
             numberOfMonths={1}
             // disabled={false}
-            max={7}
+            max={8}
             min={3}
           />
         </PopoverContent>
