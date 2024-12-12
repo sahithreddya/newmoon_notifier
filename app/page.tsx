@@ -1,20 +1,25 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { autocomplete, getPlaceDetails } from "./lib/google";
-import { useDebouncedCallback } from 'use-debounce';
-import DarkSkyVisualizer from "./lib/DarkSkyViz";
-import { getAstroData, getMoonData } from "./lib/data";
 import { Button } from "@/app/components/ui/button"
 import { Input } from "@/app/components/ui/input"
 import { Separator } from "@/app/components/ui/separator";
 import { ScrollArea, ScrollBar } from "@/app/components/ui/scroll-area";
-import { addDays, differenceInDays, format } from "date-fns"
-import { DateRange } from "react-day-picker"
-
 import { Toaster } from "@/app/components/ui/toaster";
 import { DatePickerWithRange } from "./components/ui/date-picker";
 import { useToast } from "./hooks/use-toast";
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/app/components/ui/dialog";
+import { Textarea } from "@/app/components/ui/textarea";
+
+import DarkSkyVisualizer from "./lib/DarkSkyViz";
+
+import { addDays, differenceInDays } from "date-fns"
+import { DateRange } from "react-day-picker"
+
+import { useEffect, useState } from "react";
+
+import { autocomplete, getPlaceDetails } from "./lib/google";
+import { useDebouncedCallback } from 'use-debounce';
+import { getAstroData, getMoonData, sendFeedback } from "./lib/data";
 
 
 export default function Page() {
@@ -31,6 +36,10 @@ export default function Page() {
 
   const [astroData, setAstroData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+
+  const [openDialog, setOpenDialog] = useState(false);
+  const [feedback, setFeedback] = useState(null);
+  const [email, setEmail] = useState(null);
 
   const [date, setDate] = useState<DateRange | undefined>({
     from: new Date(new Date().setHours(0, 0, 0, 0)),
@@ -118,12 +127,53 @@ export default function Page() {
     }
   };
 
+  const submitFeedback = async (e, { feedback, email }) => {
+    e.preventDefault()
+    if (!feedback || (/^\s*$/.test(feedback))) {
+      toast({
+        variant: "destructive",
+        title: "Missing Feedback",
+        description: "Please provide feedback before submitting.",
+      })
+      return;
+    }
+    if (!email || !email.includes("@")) {
+      toast({
+        variant: "destructive",
+        title: "Missing (or) Invalid Email",
+        description: "Please provide a valid email before submitting.",
+      })
+      return;
+    }
+
+    const { data, error } = await sendFeedback(feedback, email);
+
+    if (error) {
+      console.error(error)
+      toast({
+        variant: "destructive",
+        title: "Feedback sumission failed",
+        description: "An error occurred while submitting your feedback: " + error,
+      })
+    }
+    else {
+      setFeedback('')
+      setEmail('')
+      setOpenDialog(false)
+      toast({
+        variant: "constructive",
+        title: "Feedback submitted",
+        description: "Thanks for your feedback.",
+      })
+    }
+  }
+
 
   return (
     <div className="grid grid-rows-[10px_1fr_10px] items-start gap-0 h-screen p-8 font-[family-name:var(--font-geist-sans)] dark">
       <div className="h-full"/>
       <main className="grid grid-cols-[1fr_auto_2fr] gap-16 row-start-2 items-start justify-between h-full overflow-y-hidden p-2">
-        <div className="flex flex-col gap-8">
+        <div className="flex flex-col gap-8 h-full">
           <h2 className="text-3xl sm:text-4xl font-bold">When is the next <br/> New Moon?</h2>
           <div className="flex flex-row gap-4">
             <Input
@@ -156,6 +206,54 @@ export default function Page() {
             }
           </div>
           {!isLoading && <p className={`${newmoonDate ? "visible" : "hidden"} text-base`}>The next new moon is at <b>{newmoonDate}</b></p>}
+          <div className="flex-1 content-end">
+          <Dialog open={openDialog} onOpenChange={setOpenDialog}>
+              <DialogTrigger asChild>
+                <Button
+                  className=""
+                  onClick={() => { }}
+                  rel="noopener noreferrer"
+                  variant="secondary"
+                >
+                  Help improve this app
+                </Button>
+              </DialogTrigger>
+              <DialogContent className="sm:max-w-[30%]">
+                <DialogHeader>
+                  <DialogTitle>Submit Feedback</DialogTitle>
+                  <DialogDescription>
+                    <i>Darksites.co</i> is still in development and we would love to get your feedback.
+                  </DialogDescription>
+                </DialogHeader>
+                <div className="grid gap-4 py-4">
+                  <div className="">
+                    <Textarea className="h-[10rem]" placeholder="Type your message here." value={feedback} onChange={(e) => setFeedback(e.target.value)}/>
+                  </div>
+                  <div className="flex flex-col gap-2 items-start">
+                    <p className="text-left text-base font-semibold">
+                      Email
+                    </p>
+                    <Input
+                      id="username"
+                      placeholder="youremail@example.com"
+                      className=""
+                      value={email}
+                      onChange={(e) => setEmail(e.target.value)}
+                    />
+                  </div>
+                </div>
+                <DialogFooter className="">
+                  <Button 
+                    type="submit"
+                    variant="secondary"
+                    onClick={(e) => submitFeedback(e, { feedback, email })}
+                    >
+                    Submit
+                  </Button>
+                </DialogFooter>
+              </DialogContent>
+            </Dialog>
+          </div>
         </div>
         <Separator orientation="vertical" className="h-full" />
         {(isLoading) ? <br /> : <div className=" flex flex-col h-full overflow-y-hidden">

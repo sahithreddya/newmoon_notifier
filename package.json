@@ -10,11 +10,13 @@
   },
   "dependencies": {
     "@googlemaps/google-maps-services-js": "^3.4.0",
+    "@radix-ui/react-dialog": "^1.1.2",
     "@radix-ui/react-popover": "^1.1.2",
     "@radix-ui/react-scroll-area": "^1.2.1",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
     "@radix-ui/react-toast": "^1.2.2",
+    "@supabase/supabase-js": "^2.47.6",
     "@vercel/analytics": "^1.4.1",
     "@vercel/speed-insights": "^1.1.0",
     "astronomy-bundle": "^7.7.7",

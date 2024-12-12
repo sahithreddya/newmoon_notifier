@@ -1,5 +1,6 @@
 "use server";
 
+import supabase from "../utils/supabase";
 import AstroData from "./AstroData";
 
 
@@ -33,4 +34,12 @@ export async function getMoonData(lat, long) {
       moonset: moonset?.getDate() || null,
       newmoon: newmoon?.getDate() || null,
     }
+  }
+
+  export async function sendFeedback(feedback: string, email: string) {
+    const { data, error } = await supabase
+          .from('Feedback')
+          .insert({ value: feedback, email: email })
+
+    return { data, error };
   }

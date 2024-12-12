@@ -15,13 +15,13 @@ export default function DarkSkyVisualizer(d1, d2, key) {
     const getEventIcon = (type: string) => {
         switch (type) {
             case "sunrise":
-                return <SunriseIcon className="w-6 h-6 text-amber-300 opacity-60"/>;
+                return <SunriseIcon className="w-6 h-6 foreground opacity-60"/>;
             case "sunset":
-                return <SunsetIcon className="w-6 h-6 text-neutral-600"/>;
+                return <SunsetIcon className="w-6 h-6 foreground opacity-60"/>;
             case "moonrise":
-                return <MoonriseIcon className="w-6 h-6 text-cyan-300 opacity-60"/>;
+                return <MoonriseIcon className="w-6 h-6 foreground opacity-60"/>;
             case "moonset":
-                return <MoonsetIcon className="w-6 h-6 text-neutral-600"/>;
+                return <MoonsetIcon className="w-6 h-6 foreground opacity-60"/>;
         }
     }
     
@@ -45,7 +45,7 @@ export default function DarkSkyVisualizer(d1, d2, key) {
             >
                 <div className="flex flex-col items-center">
                     {(event.type === "sunrise" || event.type === "sunset") ? getEventIcon(event.type) : <></>}
-                    <span className="text-xs font-normal mt-1">{`${Math.floor(actualTime / 60)}:${(actualTime % 60).toString().padStart(2, '0')}`}</span>
+                    <span className="text-xs font-normal">{`${Math.floor(actualTime / 60)}:${(actualTime % 60).toString().padStart(2, '0')}`}</span>
                     {(event.type === "sunrise" || event.type === "sunset") ? <></> : getEventIcon(event.type)}
                 </div>
             </div>
