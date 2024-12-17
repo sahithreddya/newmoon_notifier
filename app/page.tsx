@@ -419,7 +419,7 @@ export default function Page() {
       {/* <div className="h-full" /> */}
       <div className="text-sm lg:text-base text-center lg:text-start">
               <span className="text-accent-foreground/60">
-                *All times and dates are in your device's local timezone.*
+                *All times and dates are in your device&apos;s local timezone.*
               </span>
             </div>
       <Toaster />
