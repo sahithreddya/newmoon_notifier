@@ -216,7 +216,7 @@ export default function Page() {
   };
 
   return (
-    <div className="dark grid h-screen grid-rows-[1fr] items-start gap-0 p-2 font-[family-name:var(--font-geist-sans)] lg:p-8">
+    <div className="dark grid h-screen grid-rows-[1fr] items-start gap-0 p-2 font-[family-name:var(--font-geist-sans)] lg:p-4">
       {/* <div className="h-full" /> */}
       <main className="grid h-full grid-rows-[auto_1fr_auto] items-start gap-4 overflow-y-hidden p-2 lg:grid-cols-[1fr_auto_2fr] lg:grid-rows-none lg:gap-16">
         <div className="flex h-full w-full flex-col gap-8">
@@ -269,7 +269,7 @@ export default function Page() {
             </div>
           </div>
           <div className="hidden flex-1 flex-col lg:flex">
-            <div className="hidden lg:block flex-1 content-center">
+            <div className="hidden flex-1 content-center lg:block">
               {
                 //newmoonDate.toDateString() + " " + newmoonDate.toTimeString()
                 !isLoading && (
@@ -315,7 +315,7 @@ export default function Page() {
             <br />
           )
         ) : (
-          <div className="flex h-full flex-col overflow-y-hidden">
+          <div className="flex h-full flex-col overflow-y-hidden gap-2">
             {/* <p className="hidden lg:block text-2xl font-bold">Dark sky windows </p> */}
             <div className="relative h-6 max-w-screen-lg flex-1 overflow-hidden rounded-md border border-[hsl(var(--border))]">
               <ColorLegend />
@@ -362,7 +362,7 @@ export default function Page() {
             }
           </div>
           <Separator orientation="horizontal" className="w-full lg:hidden" />
-          <div className="flex-1 content-end lg:hidden self-center">
+          <div className="flex-1 content-end self-center lg:hidden">
             <Dialog open={openDialog} onOpenChange={setOpenDialog}>
               <DialogTrigger asChild>
                 <Button
@@ -417,6 +417,11 @@ export default function Page() {
         </div>
       </main>
       {/* <div className="h-full" /> */}
+      <div className="text-sm lg:text-base text-center lg:text-start">
+              <span className="text-accent-foreground/60">
+                *All times and dates are in your device's local timezone.*
+              </span>
+            </div>
       <Toaster />
     </div>
   );
