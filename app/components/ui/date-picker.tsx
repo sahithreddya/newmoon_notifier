@@ -1,23 +1,23 @@
-"use client"
+"use client";
 
-import * as React from "react"
-import { format, differenceInDays } from "date-fns"
-import { CalendarIcon } from 'lucide-react'
-import { DateRange } from "react-day-picker"
+import * as React from "react";
+import { format, differenceInDays } from "date-fns";
+import { CalendarIcon } from "lucide-react";
+import { DateRange } from "react-day-picker";
 
-import { cn } from "@/app/lib/utils"
-import { Button } from "@/app/components/ui/button"
-import { Calendar } from "@/app/components/ui/calendar"
+import { cn } from "@/app/lib/utils";
+import { Button } from "@/app/components/ui/button";
+import { Calendar } from "@/app/components/ui/calendar";
 import {
   Popover,
   PopoverContent,
   PopoverTrigger,
-} from "@/app/components/ui/popover"
+} from "@/app/components/ui/popover";
 
 // import { useToast } from "@/app/hooks/use-toast"
 
-
-interface DatePickerWithRangeProps extends React.HTMLAttributes<HTMLDivElement> {
+interface DatePickerWithRangeProps
+  extends React.HTMLAttributes<HTMLDivElement> {
   date: DateRange | undefined;
   setDate: (date: DateRange | undefined) => void;
 }
@@ -37,7 +37,7 @@ export function DatePickerWithRange({
   };
 
   return (
-    <div className={cn("grid gap-2 my-4", className)}>
+    <div className={cn("grid gap-2", className)}>
       <Popover>
         <PopoverTrigger asChild>
           <Button
@@ -45,7 +45,7 @@ export function DatePickerWithRange({
             variant={"outline"}
             className={cn(
               "w-[300px] justify-start text-left font-normal",
-              !date && "text-muted-foreground"
+              !date && "text-muted-foreground",
             )}
           >
             <CalendarIcon className="mr-2 h-4 w-4" />
@@ -63,7 +63,10 @@ export function DatePickerWithRange({
             )}
           </Button>
         </PopoverTrigger>
-        <PopoverContent className="w-auto p-0" align="start">
+        <PopoverContent
+          className="w-auto bg-background/80 p-0 backdrop-blur-xl"
+          align="start"
+        >
           <Calendar
             initialFocus
             mode="range"
@@ -78,6 +81,5 @@ export function DatePickerWithRange({
         </PopoverContent>
       </Popover>
     </div>
-  )
+  );
 }
-
