@@ -156,7 +156,7 @@ export const calculateWindows = (
     const end = nextEvent.time;
 
     windows.push({
-      start: start % 1440, // Normalize to 0-1440 scale
+      start: start === 1440 ? 1440 : start % 1440, // Normalize to 0-1440 scale 
       end: end === 1440 ? 1440 : end % 1440, // Normalize to 0-1440 scale
       illuminatedSky: calcIlluminatedSky(currentEvent, nextEvent),
     });
