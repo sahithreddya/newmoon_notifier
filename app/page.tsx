@@ -69,19 +69,13 @@ export default function Page() {
       return;
     }
     setIsNewMoonLoading(true);
+    getAstroDataRange();
     getMoonData(latitude, longitude).then((timestamp) => {
       // getting new moon info using moon-phase api
       const newmoonDate = new Date(timestamp);
       setNewmoonDate(newmoonDate);
       setIsNewMoonLoading(false);
     });
-  }, [latitude, longitude]);
-
-  useEffect(() => {
-    if (!latitude || !longitude) {
-      return;
-    }
-    getAstroDataRange();
   }, [latitude, longitude]);
 
   useEffect(() => {
