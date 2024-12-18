@@ -43,6 +43,7 @@ export default function Page() {
 
   const [astroData, setAstroData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [isNewMoonLoading, setIsNewMoonLoading] = useState(true);
 
   const [openDialog, setOpenDialog] = useState(false);
   const [feedback, setFeedback] = useState(null);
@@ -60,13 +61,21 @@ export default function Page() {
     }
     setPlaceText(place?.description);
     getLatLong(place?.place_id); // Getting lat and long values using place id
+    setPlaceResultsVisible(false);
+  }, [place]);
+
+  useEffect(() => {
+    if (!latitude || !longitude) {
+      return;
+    }
+    setIsNewMoonLoading(true);
     getMoonData(latitude, longitude).then((timestamp) => {
       // getting new moon info using moon-phase api
       const newmoonDate = new Date(timestamp);
       setNewmoonDate(newmoonDate);
+      setIsNewMoonLoading(false);
     });
-    setPlaceResultsVisible(false);
-  }, [place]);
+  }, [latitude, longitude]);
 
   useEffect(() => {
     if (!latitude || !longitude) {
@@ -84,7 +93,6 @@ export default function Page() {
   const { toast } = useToast();
 
   const getAstroDataRange = async () => {
-    setIsLoading(true);
     if (!latitude || !longitude) {
       toast({
         variant: "destructive",
@@ -101,6 +109,7 @@ export default function Page() {
       });
       return;
     }
+    setIsLoading(true);
     let promises = [];
     for (let i = 0; i <= differenceInDays(date?.to, date?.from); i++) {
       promises.push(
@@ -201,7 +210,7 @@ export default function Page() {
       <div className="flex flex-row flex-wrap justify-center gap-4 rounded-lg p-2 shadow-md lg:p-4">
         {/* <h2 className="mb-2 text-lg font-semibold">Legend</h2> */}
         {legendItems.map((item, index) => (
-          <div key={index} className="flex items-center gap-1">
+          <div key={"legend_" + index} className="flex items-center gap-1">
             <div
               className={`h-4 w-4 lg:h-6 lg:w-6 ${item.color}`}
               aria-hidden="true"
@@ -270,22 +279,24 @@ export default function Page() {
           </div>
           <div className="hidden flex-1 flex-col lg:flex">
             <div className="hidden flex-1 content-center lg:block">
-              {
-                //newmoonDate.toDateString() + " " + newmoonDate.toTimeString()
-                !isLoading && (
-                  <div className="flex flex-col gap-2">
-                    <p
-                      className={`${newmoonDate ? "visible" : "hidden"} text-base font-semibold text-muted-foreground`}
-                    >
-                      Upcoming New Moon
-                    </p>
-                    <p className="text-3xl font-semibold">
-                      {format(newmoonDate, "EEE, MMM do")}
-                    </p>
-                    <p>{format(newmoonDate, "H:mm O")}</p>
+              {place && (
+                <div className="flex flex-col gap-2">
+                  <p className="text-base font-semibold text-muted-foreground">
+                    Upcoming New Moon
+                  </p>
+                  <div className={`${isNewMoonLoading ? "visible" : "hidden"}`}>
+                    <Loader size="sm" />
                   </div>
-                )
-              }
+                  <div
+                    className={`${!isNewMoonLoading ? "visible" : "hidden"}`}
+                  >
+                    <p className="text-3xl font-semibold">
+                      {newmoonDate && format(newmoonDate, "EEE, MMM do")}
+                    </p>
+                    <p>{newmoonDate && format(newmoonDate, "H:mm O")}</p>
+                  </div>
+                </div>
+              )}
             </div>
             <div className="hidden flex-1 flex-wrap content-end lg:flex">
               <Dialog open={openDialog} onOpenChange={setOpenDialog}>
@@ -315,7 +326,7 @@ export default function Page() {
             <br />
           )
         ) : (
-          <div className="flex h-full flex-col overflow-y-hidden gap-2">
+          <div className="flex h-full flex-col gap-2 overflow-y-hidden">
             {/* <p className="hidden lg:block text-2xl font-bold">Dark sky windows </p> */}
             <div className="relative h-6 max-w-screen-lg flex-1 overflow-hidden rounded-md border border-[hsl(var(--border))]">
               <ColorLegend />
@@ -324,12 +335,15 @@ export default function Page() {
                   {astroData.map(
                     (data, i) =>
                       i + 1 < astroData.length && (
-                        <div className="flex w-full flex-col gap-8" key={i}>
+                        <div
+                          className="flex w-full flex-col gap-8"
+                          key={"viz_" + i}
+                        >
                           {DarkSkyVisualizer(astroData[i], astroData[i + 1], i)}
                           <Separator
                             orientation="horizontal"
                             className="w-full"
-                            key={i}
+                            key={"viz_separator_" + i}
                           />
                         </div>
                       ),
@@ -342,24 +356,30 @@ export default function Page() {
         )}
         <div className="flex flex-1 flex-col gap-4 lg:hidden">
           <div className="lg:hidden">
-            {
-              //newmoonDate.toDateString() + " " + newmoonDate.toTimeString()
-              !isLoading && (
-                <div className="flex flex-col gap-2">
-                  <p
-                    className={`${newmoonDate ? "visible" : "hidden"} text-base font-semibold text-muted-foreground`}
-                  >
-                    Upcoming New Moon
-                  </p>
-                  <div className="flex flex-row items-end gap-2">
+            {place && (
+              <div className="flex flex-col gap-1">
+                <p className="text-base font-semibold text-muted-foreground">
+                  Upcoming New Moon
+                </p>
+                <div
+                  className={`${isNewMoonLoading ? "visible" : "hidden"} flex flex-row items-center`}
+                >
+                  <Loader size="sm" />
+                  <div className="opacity-0">
                     <p className="text-2xl font-semibold">
-                      {format(newmoonDate, "EEE, MMM do")}
+                      {format(new Date(), "EEE, MMM do")}
                     </p>
-                    <p>{format(newmoonDate, "H:mm O")}</p>
+                    <p>{format(new Date(), "H:mm O")}</p>
                   </div>
                 </div>
-              )
-            }
+                <div className={`${!isNewMoonLoading ? "visible" : "hidden"}`}>
+                  <p className="text-2xl font-semibold">
+                    {newmoonDate && format(newmoonDate, "EEE, MMM do")}
+                  </p>
+                  <p>{newmoonDate && format(newmoonDate, "H:mm O")}</p>
+                </div>
+              </div>
+            )}
           </div>
           <Separator orientation="horizontal" className="w-full lg:hidden" />
           <div className="flex-1 content-end self-center lg:hidden">
@@ -417,11 +437,11 @@ export default function Page() {
         </div>
       </main>
       {/* <div className="h-full" /> */}
-      <div className="text-sm lg:text-base text-center lg:text-start">
-              <span className="text-accent-foreground/60">
-                *All times and dates are in your device&apos;s local timezone.*
-              </span>
-            </div>
+      <div className="text-center text-sm lg:text-start lg:text-base">
+        <span className="text-accent-foreground/60">
+          *All times and dates are in your device&apos;s local timezone.*
+        </span>
+      </div>
       <Toaster />
     </div>
   );

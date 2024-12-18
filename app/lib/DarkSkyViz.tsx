@@ -112,7 +112,7 @@ export default function DarkSkyVisualizer(d1, d2, key) {
         })}
         <div className="absolute inset-0 opacity-30" />
         {events
-          ?.filter((event) => event.time < 1440 && event.time > 0)
+          ?.filter((event) => event.time <= 1440 && event.time >= 0 && event.type !== "startOfDay" && event.type !== "endOfDay")
           .map((event, index) => (
             <TimelineEvent
               key={index}

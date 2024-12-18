@@ -68,7 +68,6 @@ export function DatePickerWithRange({
           align="start"
         >
           <Calendar
-            initialFocus
             mode="range"
             defaultMonth={date?.from}
             selected={date}
@@ -76,7 +75,7 @@ export function DatePickerWithRange({
             numberOfMonths={1}
             // disabled={false}
             max={7}
-            min={3}
+            min={2}
           />
         </PopoverContent>
       </Popover>
