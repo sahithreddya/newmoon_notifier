@@ -55,7 +55,7 @@ export default function Page() {
   });
 
   useEffect(() => {
-    console.log("place changed to ", place);
+    // console.log("place changed to ", place);
     if (!place) {
       return;
     }
@@ -129,7 +129,7 @@ export default function Page() {
   const getLatLong = async (id) => {
     try {
       const details = await getPlaceDetails(id);
-      console.log("coordinates are ", details);
+      // console.log("coordinates are ", details);
       if (!details) {
         throw new Error("no details");
       }

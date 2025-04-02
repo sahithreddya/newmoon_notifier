@@ -16,7 +16,7 @@ export async function getMoonData(lat, long) {
   );
   try {
     let moondata = await data.json();
-    console.log("moon data is ", moondata);
+    // console.log("moon data is ", moondata);
     const newmoonDateTime =
       moondata?.moon?.detailed?.upcoming_phases?.new_moon?.next?.timestamp *
       1000;
