@@ -87,6 +87,7 @@ export default function Page() {
   const { toast } = useToast();
 
   const getAstroDataRange = async () => {
+    console.log("[LOG]: User's current time is: ", new Date());
     if (!latitude || !longitude) {
       toast({
         variant: "destructive",
