@@ -31,7 +31,7 @@ export function DatePickerWithRange({
 
   const handleSelect = (selectedRange: DateRange | undefined) => {
     if (selectedRange?.from && selectedRange?.to) {
-      console.log("date is ", selectedRange);
+      // console.log("date is ", selectedRange);
     }
     setDate(selectedRange);
   };

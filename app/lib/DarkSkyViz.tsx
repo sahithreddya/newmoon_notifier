@@ -82,15 +82,15 @@ export default function DarkSkyVisualizer(d1, d2, key) {
       key={key}
     >
       <h4 className="my-auto hidden text-end text-base font-semibold lg:block">
-        {d1?.sunset.toLocaleString("default", {
+        {d1?.date?.toLocaleString("default", {
           month: "short",
           day: "numeric",
         })}
       </h4>
       <h4 className="text-center text-sm font-semibold lg:hidden">
-        {d1?.sunset.toLocaleString("default", { month: "short" })}
+        {d1?.date?.toLocaleString("default", { month: "short" })}
         <br />
-        {d1?.sunset.toLocaleString("default", { day: "numeric" })}
+        {d1?.date?.toLocaleString("default", { day: "numeric" })}
       </h4>
       <div className="relative h-12 flex-1 overflow-visible bg-black">
         {darkSkyWindows?.map((window, index) => {
@@ -112,7 +112,13 @@ export default function DarkSkyVisualizer(d1, d2, key) {
         })}
         <div className="absolute inset-0 opacity-30" />
         {events
-          ?.filter((event) => event.time <= 1440 && event.time >= 0 && event.type !== "startOfDay" && event.type !== "endOfDay")
+          ?.filter(
+            (event) =>
+              event.time <= 1440 &&
+              event.time >= 0 &&
+              event.type !== "startOfDay" &&
+              event.type !== "endOfDay",
+          )
           .map((event, index) => (
             <TimelineEvent
               key={index}
@@ -140,9 +146,9 @@ export default function DarkSkyVisualizer(d1, d2, key) {
         })}
       </h4>
       <h4 className="text-center text-sm font-semibold lg:hidden">
-        {d2?.sunset.toLocaleString("default", { month: "short" })}
+        {d2?.date?.toLocaleString("default", { month: "short" })}
         <br />
-        {d2?.sunset.toLocaleString("default", { day: "numeric" })}
+        {d2?.date?.toLocaleString("default", { day: "numeric" })}
       </h4>
       {/* <div className="mt-4 text-sm">
                 <p>Dark sky windows (sun and illuminated moon below horizon):</p>

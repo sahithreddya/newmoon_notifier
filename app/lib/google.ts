@@ -4,7 +4,6 @@ import { Client } from "@googlemaps/google-maps-services-js";
 
 const client = new Client();
 export const autocomplete = async (input: string) => {
-
   try {
     const response = await client.placeAutocomplete({
       params: {
@@ -13,7 +12,7 @@ export const autocomplete = async (input: string) => {
       },
     });
 
-    console.log("place res is ", response?.data);
+    // console.log("place res is ", response?.data);
 
     return response?.data?.predictions;
   } catch (error) {
@@ -22,7 +21,6 @@ export const autocomplete = async (input: string) => {
 };
 
 export const getPlaceDetails = async (input: string) => {
-
   try {
     const response = await client.placeDetails({
       params: {
@@ -31,7 +29,7 @@ export const getPlaceDetails = async (input: string) => {
       },
     });
 
-    console.log("loc res is ", response?.data);
+    // console.log("loc res is ", response?.data);
 
     return response?.data?.result?.geometry;
   } catch (error) {
