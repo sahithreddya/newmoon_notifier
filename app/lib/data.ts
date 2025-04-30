@@ -27,6 +27,7 @@ export async function getMoonData(lat, long) {
 }
 
 export async function getAstroData(lat: number, lon: number, date: Date) {
+  console.log("[LOG]: Server's current time is: ", new Date());
   const astroObj: AstroData = new AstroData(lat, lon, date);
 
   let [sunrise, sunset, moonrise, moonset, newmoon] = await Promise.all([
