@@ -24,7 +24,6 @@ export default class AstroData {
   yestsun: Sun;
 
   constructor(lat: number, lon: number, date: Date) {
-
     this.location = {
       lat: lat,
       lon: lon,
@@ -34,7 +33,7 @@ export default class AstroData {
     this.todaytoi = createTimeOfInterest.fromTime(
       this.today.getFullYear(),
       this.today.getMonth() + 1,
-      this.today.getDate()
+      this.today.getDate(),
     );
     this.todaymoon = createMoon(this.todaytoi);
     this.todaysun = createSun(this.todaytoi);
@@ -42,7 +41,7 @@ export default class AstroData {
     this.tmrwtoi = createTimeOfInterest.fromTime(
       this.today.getFullYear(),
       this.today.getMonth() + 1,
-      this.today.getDate() + 1
+      this.today.getDate() + 1,
     );
     this.tmrwmoon = createMoon(this.tmrwtoi);
     this.tmrwsun = createSun(this.tmrwtoi);
@@ -50,7 +49,7 @@ export default class AstroData {
     this.yesttoi = createTimeOfInterest.fromTime(
       this.today.getFullYear(),
       this.today.getMonth() + 1,
-      this.today.getDate() - 1
+      this.today.getDate() - 1,
     );
     this.yestmoon = createMoon(this.yesttoi);
     this.yestsun = createSun(this.yesttoi);
@@ -58,25 +57,27 @@ export default class AstroData {
 
   getMoonRise = async () => {
     try {
-        const toiRise: TimeOfInterest = await this.todaymoon.getRise(this.location);
+      const toiRise: TimeOfInterest = await this.todaymoon.getRise(
+        this.location,
+      );
 
-        const currentDate: Date = this.today;
-        currentDate.setHours(0, 0, 0, 0);
-        const riseDate: Date = toiRise.getDate();
-        riseDate.setHours(0, 0, 0, 0);
+      const currentDate: Date = this.today;
+      currentDate.setHours(0, 0, 0, 0);
+      const riseDate: Date = toiRise.getDate();
+      riseDate.setHours(0, 0, 0, 0);
 
-        if (toiRise) {
-            if (riseDate < currentDate) {
-                return await this.tmrwmoon.getRise(this.location);
-            } else if (riseDate > currentDate) {
-                return await this.yestmoon.getRise(this.location);
-            } else {
-                return toiRise;
-            }
+      if (toiRise) {
+        if (riseDate < currentDate) {
+          return await this.tmrwmoon.getRise(this.location);
+        } else if (riseDate > currentDate) {
+          return await this.yestmoon.getRise(this.location);
+        } else {
+          return toiRise;
         }
+      }
     } catch (e) {
-        console.error("Error getting moonrise time on:", this.today.getDate(), e);
-        return await this.tmrwmoon.getRise(this.location);
+      console.error("Error getting moonrise time on:", this.today.getDate(), e);
+      return await this.tmrwmoon.getRise(this.location);
     }
   };
 
@@ -105,12 +106,14 @@ export default class AstroData {
   };
 
   getUpcomingNewMoon = async () => {
-    return (await this.todaymoon.getUpcomingNewMoon());
+    return await this.todaymoon.getUpcomingNewMoon();
   };
 
   getSunRise = async () => {
     try {
-      const toiRise: TimeOfInterest = await this.todaysun.getRise(this.location);
+      const toiRise: TimeOfInterest = await this.todaysun.getRise(
+        this.location,
+      );
 
       const currentDate: Date = this.today;
       currentDate.setHours(0, 0, 0, 0);
@@ -128,6 +131,7 @@ export default class AstroData {
       }
     } catch (e) {
       console.error("Error getting sunrise time: ", this.today.getDate(), e);
+      return await this.tmrwsun.getRise(this.location);
     }
   };
 
@@ -151,7 +155,7 @@ export default class AstroData {
       }
     } catch (e) {
       console.error("Error getting sunset time: ", this.today.getDate(), e);
+      return await this.tmrwsun.getSet(this.location);
     }
-
   };
 }

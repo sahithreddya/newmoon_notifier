@@ -38,6 +38,7 @@ export async function getAstroData(lat: number, lon: number, date: Date) {
   ]);
 
   return {
+    date: date,
     sunrise: sunrise?.getDate() || null,
     sunset: sunset?.getDate() || null,
     moonrise: moonrise?.getDate() || null,
